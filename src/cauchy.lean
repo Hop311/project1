@@ -1,5 +1,6 @@
 
-import Project1
+import subsequence -- Imports sequences and their properties, as well as
+                   -- tools for constructing and manipulating subsequences.
 
 namespace my_analysis
 
@@ -31,14 +32,26 @@ namespace my_analysis
       use B, intros m n hm hn,
       rw [← add_halves ε],
       refine lt_of_le_of_lt _ (add_lt_add (h hm) (h hn)),
-      have : |s m - s n| = |(s m - x) + (x - s n)|, by ring_nf,
+      have : |s m - s n| = |(s m - x) + (x - s n)|, ring_nf,
       rw [this, ← abs_neg (s n - x), neg_sub],
       exact abs_add (s m - x) (x - s n) },
-    { intros hc,
+    { intro hc,
+      -- We get the limit from the convergent subsequence `bolzano_weierstrass` gives us.
       cases bolzano_weierstrass (cauchy_is_bounded hc) with si hcon,
-      cases hcon with x hx,
-      use x,
-      sorry }
+      cases hcon with x hx, use x, intros ε hε,
+      cases hx (half_pos hε) with B hB,
+      cases hc (half_pos hε) with C hC,
+      let k := max B C,
+      have hk : C ≤ si k,
+        apply (si.unbounded C).trans,
+        by_cases h : C = k,
+        { rw [h] },
+        { exact le_of_lt (si.mono (lt_of_le_of_ne (le_max_right B C) h)) },
+      use C, intros n hn,
+      rw [← add_halves ε],
+      refine lt_of_le_of_lt _ (add_lt_add (hC hn hk) (hB (le_max_left B C))),
+      have : |s n - x| = |(s n - s.subseq si k) + (s.subseq si k - x)|, ring_nf,
+      rw [this], exact abs_add _ _ }
   end
 
 end my_analysis

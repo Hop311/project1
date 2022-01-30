@@ -1,5 +1,5 @@
 [package]
-name = "project1"
+name = "project1-myanalysis"
 version = "0.1"
 lean_version = "leanprover-community/lean:3.38.0"
 path = "src"
