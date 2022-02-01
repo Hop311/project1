@@ -2,6 +2,7 @@
 import sequence -- Imports sequences and their properties (convergent, bounded, monotone, etc.).
 
 namespace my_analysis
+
   section subindex
 
     /-- A subindex is a strictly increasing map from ℕ to itself. -/

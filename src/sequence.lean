@@ -302,14 +302,8 @@ namespace my_analysis
         intros m hm,
         rw [hn] at hm,
         exact absurd hm (nat.not_lt_zero m) },
-      { cases finite_prefix_max s hn with M hM,
-        cases finite_prefix_min s hn with m hm,
-        use max (s M) (-(s m)),
-        intros k hk,
-        apply abs_le.mpr, split,
-        { rw [← min_neg_neg, neg_neg],
-          exact min_le_iff.mpr (or.inr (hm.right k hk)) },
-        { exact le_max_of_le_left (hM.right k hk) } }
+      { cases finite_prefix_max s.abs hn with M hM,
+        exact ⟨|s M|, hM.right⟩ }
     end
 
   end finite_prefix
