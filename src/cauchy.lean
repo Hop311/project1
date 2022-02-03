@@ -19,7 +19,7 @@ namespace my_analysis
       have h₂ : |s n - s B| < 1, from h hn (le_refl B),
       exact lt_of_le_of_lt h₁ (add_lt_add_of_lt_of_le h₂ (le_refl _)),
     apply (bounded_shift s B).mpr,
-    use 1 + |s B|, intro n,
+    use 1 + |s B|, intros,
     exact le_of_lt (hb le_add_self)
   end
 
@@ -27,7 +27,8 @@ namespace my_analysis
   theorem convergent_iff_cauchy {s : seq} : s.convergent ↔ s.cauchy :=
   begin
     split,
-    { rintros ⟨x, hx⟩ ε hε,
+    { -- convergent → cauchy
+      rintros ⟨x, hx⟩ ε hε,
       cases hx (half_pos hε) with B h,
       use B, intros m n hm hn,
       rw [← add_halves ε],
@@ -35,7 +36,8 @@ namespace my_analysis
       have : |s m - s n| = |(s m - x) + (x - s n)|, ring_nf,
       rw [this, ← abs_neg (s n - x), neg_sub],
       exact abs_add (s m - x) (x - s n) },
-    { intro hc,
+    { -- cauchy → convergent
+      intro hc,
       -- We get the limit from the convergent subsequence `bolzano_weierstrass` gives us.
       cases bolzano_weierstrass (cauchy_is_bounded hc) with si hcon,
       cases hcon with x hx, use x, intros ε hε,

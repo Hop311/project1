@@ -9,6 +9,7 @@ namespace my_analysis
 
   /-- Sequence formed by taking the absolute value of each term. -/
   noncomputable def seq.abs (s : seq) : seq := λ k, |s k|
+  @[simp] theorem seq_abs_eq (s : seq) (n : ℕ) : s.abs n = |s n| := rfl
 
   /-- Set containing all the values taken by terms of the sequence `s`. -/
   def seq.to_set (s : seq) : set ℝ := {x | ∃ n, s n = x}
@@ -72,14 +73,14 @@ namespace my_analysis
 
   section bounded
 
-    /-- Proposition that a sequence is bounded above and below, i.e. all terms lie within `[-M, M]`. -/
-    def seq.bounded (s : seq) : Prop := ∃ M, ∀ n, |s n| ≤ M
-
     /-- Proposition that a sequence is bounded above, i.e. all terms lie within `(-∞, M]`. -/
     def seq.bounded_above (s : seq) : Prop := ∃ M, ∀ n, s n ≤ M
 
     /-- Proposition that a sequence is bounded above, i.e. all terms lie within `[m, ∞)`. -/
     def seq.bounded_below (s : seq) : Prop := ∃ m, ∀ n, m ≤ s n
+
+    /-- Proposition that a sequence is bounded above and below, i.e. all terms lie within `[-M, M]`. -/
+    def seq.bounded (s : seq) : Prop := s.abs.bounded_above
 
     /-- Proof that a sequence is bounded in absolute value if and only if it is bounded both above and below. -/
     theorem bounded_iff_above_below {s : seq} : s.bounded ↔ s.bounded_above ∧ s.bounded_below :=
@@ -97,9 +98,9 @@ namespace my_analysis
         cases hb with m hm,
         use max M (-m), intro n,
         by_cases h : s n ≤ 0,
-        { rw [abs_of_nonpos h],
+        { rw [seq_abs_eq, abs_of_nonpos h],
           exact le_max_of_le_right (neg_le_neg (hm n)) },
-        { rw [abs_of_nonneg (le_of_not_ge h)],
+        { rw [seq_abs_eq, abs_of_nonneg (le_of_not_ge h)],
           exact le_max_of_le_left (hM n) }}
     end
 
@@ -196,7 +197,8 @@ namespace my_analysis
     end
 
     /-- Any increasing bounded-above sequence is convergent. -/
-    theorem convergent_of_bounded_above_increasing {s : seq} (hba : s.bounded_above) (hi : s.increasing) : s.convergent :=
+    theorem convergent_of_bounded_above_increasing {s : seq} (hba : s.bounded_above) (hi : s.increasing) :
+      s.convergent :=
     begin
       use Sup s.to_set,
       intros ε hε,
@@ -286,12 +288,10 @@ namespace my_analysis
     theorem finite_prefix_min (s : seq) {n : ℕ} (hn : n ≠ 0) :
       ∃ m, m < n ∧ ∀ k < n, s m ≤ s k :=
     begin
-      let fs := (finite_prefix s n),
-      have hM := mem_finite_prefix.mp (fs.min'_mem (finite_prefix_nonempty s hn)),
-      cases hM with m hm,
-      use m, split, exact hm.left,
-      intros k hk, rw [hm.right],
-      exact fs.min'_le (s k) (mem_finite_prefix.mpr ⟨k, hk, rfl⟩)
+      cases finite_prefix_max (-s) hn with M hM,
+      use M, split, exact hM.left,
+      intros k hk,
+      exact neg_le_neg_iff.mp (hM.right k hk)
     end
 
     /-- For any `n`, the elements `|s m|` for `m < n` are bounded. -/
@@ -321,7 +321,7 @@ namespace my_analysis
       intro k,
       by_cases hk : k < n,
       { exact le_max_of_le_right (h₂ k hk) },
-      { rw [← shift_ge s (not_lt.mp hk)],
+      { rw [seq_abs_eq, ← shift_ge s (not_lt.mp hk)],
         exact le_max_of_le_left (h₁ (k - n)) } }
   end
 

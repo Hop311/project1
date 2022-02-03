@@ -15,7 +15,7 @@ namespace my_analysis
 
     /-- The strictly increasing property of subindex follows inductively from the
       function having strictly increasing consecutive terms. -/
-    def subindex_mk (f : ℕ → ℕ) (h : ∀ n, f n < f n.succ): subindex :=
+    def subindex_mk (f : ℕ → ℕ) (h : ∀ n, f n < f n.succ) : subindex :=
       ⟨f, begin
         intros a b hab,
         have : ∀ n, n > 0 → f a < f (a + n),
